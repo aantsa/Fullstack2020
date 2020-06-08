@@ -10,15 +10,28 @@ const App = (props) => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    const newPerson = {
-      name: newName
-    }
-    setPersons(persons.concat(newPerson))
-    setNewName('')
-  }
 
+    const newPerson = {
+      name: newName,
+      number: newNumber
+    }
+    
+    if (!persons.some(person => person.name.toLowerCase() === newName.toLowerCase())){
+      setPersons(persons.concat(newPerson))
+    } else {
+      window.alert(newName + " is already added to phonebook")
+    }
+
+    setNewName('')
+    setNewNumber('')
+  }
+    
   const handleNameChange = (event) => {
     setNewName(event.target.value)
+  }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
   }
 
   console.log(newName)
@@ -30,6 +43,11 @@ const App = (props) => {
           name: <input 
           value = {newName}
           onChange = {handleNameChange}/>
+        </div>
+        <div>
+          number: <input
+          value = {newNumber}
+          onChange = {handleNumberChange}/>
         </div>
         <div>
           <button type="submit">add</button>
