@@ -35,7 +35,7 @@ const App = (props) => {
   const addPerson = (event) => {
     event.preventDefault();
 
-    const match = persons.filter((p) => p.name === newPerson.name);
+    const match = persons.filter((p) => p.name.toLowerCase() === newPerson.name.toLowerCase());
 
     if (match.length === 0) {
       notes.create(newPerson).then((res) => {
