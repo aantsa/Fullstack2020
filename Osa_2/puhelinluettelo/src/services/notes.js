@@ -1,5 +1,6 @@
 import axios from 'axios'
 const baseUrl = "http://localhost:3002/persons";
+const herokuUrl = "https://infinite-plateau-87631.herokuapp.com/api/persons";
 
 const getAll = () => {
   return axios.get(baseUrl)
