@@ -1,5 +1,4 @@
 import React from "react";
-import notes from "../services/notes";
 
 const Person = ({ person, personToDelete }) => {
   return (
