@@ -3,14 +3,18 @@ const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app);
 const Blog = require("../models/blog");
-const { noBlogs, blog, blogs } = require("./test_helper");
+const { blogs, usersInDb } = require("./test_helper");
+const bcrypt = require("bcryptjs");
+const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+const config = require("../utils/config");
 
 beforeEach(async () => {
   await Blog.deleteMany({});
   await Blog.insertMany(blogs);
 });
 
-describe("fetching blog/blogs", () => {
+describe("get blog/blogs", () => {
   test("blogs are returned as json", async () => {
     await api
       .get("/api/blogs")
@@ -18,7 +22,7 @@ describe("fetching blog/blogs", () => {
       .expect("Content-Type", /application\/json/);
   });
 
-  test("blogs identifier named as id", async () => {
+  test("blogs identifier named id", async () => {
     const res = await api.get("/api/blogs");
 
     const ids = res.body.map((blog) => blog.id);
@@ -30,6 +34,17 @@ describe("fetching blog/blogs", () => {
 });
 
 describe("post a blog", () => {
+  let token = null;
+  beforeEach(async () => {
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash("test1", 10);
+    const user = await new User({ username: "name", passwordHash }).save();
+
+    const tokenUser = { username: "name", id: user.id };
+    return (token = jwt.sign(tokenUser, config.SECRET));
+  });
+
   test("new valid blog test ", async () => {
     const blog = {
       title: "A Blog",
@@ -41,6 +56,7 @@ describe("post a blog", () => {
     await api
       .post("/api/blogs")
       .send(blog)
+      .set("Authorization", `Bearer ${token}`)
       .expect(201)
       .expect("Content-Type", /application\/json/);
 
@@ -63,6 +79,7 @@ describe("post a blog", () => {
     await api
       .post("/api/blogs")
       .send(blog)
+      .set("Authorization", `Bearer ${token}`)
       .expect(201)
       .expect("Content-Type", /application\/json/);
 
@@ -78,7 +95,11 @@ describe("post a blog", () => {
       author: "Playful blogger",
     };
 
-    await api.post("/api/blogs").send(blog).expect(400);
+    await api
+      .post("/api/blogs")
+      .send(blog)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(400);
 
     const blogListAfter = await Blog.find({});
     const afterLength = blogListAfter.map((b) => b.toJSON());
@@ -88,13 +109,44 @@ describe("post a blog", () => {
 });
 
 describe("delete blog", () => {
+  let token = null;
+  beforeEach(async () => {
+    await User.deleteMany({});
+
+    await User.deleteMany({});
+    await Blog.deleteMany({});
+
+    const passwordHash = await bcrypt.hash("test1", 10);
+    const user = await new User({ username: "name", passwordHash }).save();
+
+    const tokenUser = { username: "name", id: user.id };
+    token = jwt.sign(tokenUser, config.SECRET);
+
+    const blogToDelete = {
+      title: "delete blog",
+      author: "wonderful blogger",
+      url: "https://fullstackopen.com/",
+    };
+
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(blogToDelete)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    return token;
+
+  });
+
   test("delete blog if status code 204", async () => {
-    const blogs = await Blog.find({});
-    const blogList = blogs.map((blog) => blog.toJSON());
+    const blogs = await Blog.find({}).populate("user");
+    const blogDelete = blogs[0];
 
-    const blogDelete = blogList[0];
-
-    await api.delete(`/api/blogs/${blogDelete.id}`).expect(204);
+    await api
+      .delete(`/api/blogs/${blogDelete.id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
 
     const blogListAfter = await Blog.find({});
     const afterLength = blogListAfter.map((b) => b.toJSON());
@@ -120,7 +172,39 @@ describe("update blog", () => {
     expect(afterLength).toHaveLength(blogs.length);
 
     expect(updateBlog.likes).toBe(1);
+  });
+});
 
+describe("when there is initially one user at db", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash("sekret", 10);
+    const user = new User({ username: "root", passwordHash });
+
+    await user.save();
+  });
+
+  test("creation succeeds with a fresh username", async () => {
+    const usersAtStart = await usersInDb();
+
+    const newUser = {
+      username: "mluukkai",
+      name: "Matti Luukkainen",
+      password: "salainen",
+    };
+
+    await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const usersAtEnd = await usersInDb();
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
+
+    const usernames = usersAtEnd.map((u) => u.username);
+    expect(usernames).toContain(newUser.username);
   });
 });
 
