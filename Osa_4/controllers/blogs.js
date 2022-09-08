@@ -34,7 +34,7 @@ blogsRouter.post("/", async (req, res) => {
   }).populate("user", { username: 1, name: 1});
 
   const newBlog = await blog.save();
-  req.user.blogs = req.user.blogs.concat(newBlog._id); // SPREAD OPERATOR TÄHÄN
+  req.user.blogs = req.user.blogs.concat(newBlog._id);
   await req.user.save();
   res.status(201).json(newBlog.toJSON());
 });
