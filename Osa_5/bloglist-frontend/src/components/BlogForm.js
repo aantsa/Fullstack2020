@@ -3,12 +3,12 @@ import { useState } from "react";
 const BlogForm = ({ addBlog }) => {
   const [newBlog, setNewBlog] = useState({ title: "", author: "", url: "" });
 
-  const handleInputChange = (event) => {
+  const inputChange = (event) => {
     const blog = event.target;
     setNewBlog({ ...newBlog, [blog.name]: blog.value });
   };
 
-  const handleCreateBlog = (event) => {
+  const handleAddBlog = (event) => {
     event.preventDefault();
     addBlog(newBlog.title, newBlog.author, newBlog.url);
     setNewBlog({ title: "", author: "", url: "" });
@@ -17,14 +17,14 @@ const BlogForm = ({ addBlog }) => {
   return (
     <div>
       <h2>Create new blog</h2>
-      <form onSubmit={handleCreateBlog}>
+      <form onSubmit={handleAddBlog}>
         <div>
           title:
           <input
             name="title"
             type="text"
             value={newBlog.title}
-            onChange={handleInputChange}
+            onChange={inputChange}
           />
         </div>
         <div>
@@ -33,7 +33,7 @@ const BlogForm = ({ addBlog }) => {
             name="author"
             type="text"
             value={newBlog.author}
-            onChange={handleInputChange}
+            onChange={inputChange}
           />
         </div>
         <div>
@@ -42,7 +42,7 @@ const BlogForm = ({ addBlog }) => {
             name="url"
             type="text"
             value={newBlog.url}
-            onChange={handleInputChange}
+            onChange={inputChange}
           />
         </div>
         <button type="submit">create</button>

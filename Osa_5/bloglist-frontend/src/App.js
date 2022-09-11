@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Toast from "./components/Toast";
+import Togglable from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -44,7 +45,7 @@ const App = () => {
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       setNotification({ message: `Welcome ${user.name}` });
       setUser(user);
-    } catch (exception) {
+    } catch (e) {
       setNotification({
         message: "Wrong username or password",
         error: true,
@@ -60,6 +61,7 @@ const App = () => {
 
   const addBlog = async (title, author, url) => {
     try {
+      blogFormRef.current.toggleVisibility();
       const blog = await blogService.create({
         title,
         author,
@@ -68,9 +70,45 @@ const App = () => {
       setBlogs([...blogs, blog]);
       setNotification({ message: `A new blog ${title} by ${author} added` });
     } catch (e) {
-      console.log(e);
+      setNotification({
+        message: `error: ${e.response.data.error}`,
+        error: true,
+      });
     }
   };
+
+  const addLike = async (blogId, blogToBeUpdated) => {
+    try {
+      const response = await blogService.update(blogId, blogToBeUpdated);
+
+      setBlogs(
+        blogs.map((blog) => (blog.id === response.id ? response : blog))
+      );
+      setNotification({ message: "You liked a blog!" });
+    } catch (e) {
+      setNotification({
+        message: `error: ${e.response.data.error}`,
+        error: true,
+      });
+    }
+  };
+
+  const deleteBlog = async (blogId) => {
+    try {
+      await blogService.remove(blogId);
+
+      const updatedBlogs = blogs.filter((blog) => blog.id !== blogId);
+      setBlogs(updatedBlogs);
+      setNotification({ message: "You removed a blog" });
+    } catch (e) {
+      setNotification({
+        message: `error: ${e.response.data.error}`,
+        error: true,
+      });
+    }
+  };
+
+  const blogFormRef = useRef();
 
   return (
     <div>
@@ -84,11 +122,19 @@ const App = () => {
             {user.name} logged in
             <button onClick={handleLogout}>logout</button>
           </p>
-
-          <BlogForm addBlog={addBlog} />
-          {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
-          ))}
+          <Togglable buttonLabel="new blog" ref={blogFormRef}>
+            <BlogForm addBlog={addBlog} />
+          </Togglable>
+          {blogs
+            .sort((a, b) => b.likes - a.likes)
+            .map((blog) => (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                addLike={addLike}
+                deleteBlog={deleteBlog}
+              />
+            ))}
         </div>
       )}
     </div>
