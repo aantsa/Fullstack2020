@@ -1,18 +1,18 @@
-import { useState } from 'react'
+import { useState } from "react";
 
 const BlogForm = ({ addBlog }) => {
-  const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
+  const [newBlog, setNewBlog] = useState({ title: "", author: "", url: "" });
 
   const inputChange = (event) => {
-    const blog = event.target
-    setNewBlog({ ...newBlog, [blog.name]: blog.value })
-  }
+    const blog = event.target;
+    setNewBlog({ ...newBlog, [blog.name]: blog.value });
+  };
 
   const handleAddBlog = (event) => {
-    event.preventDefault()
-    addBlog(newBlog.title, newBlog.author, newBlog.url)
-    setNewBlog({ title: '', author: '', url: '' })
-  }
+    event.preventDefault();
+    addBlog(newBlog.title, newBlog.author, newBlog.url);
+    setNewBlog({ title: "", author: "", url: "" });
+  };
 
   return (
     <div>
@@ -23,6 +23,7 @@ const BlogForm = ({ addBlog }) => {
           <input
             name="title"
             type="text"
+            className="title"
             value={newBlog.title}
             onChange={inputChange}
           />
@@ -32,6 +33,7 @@ const BlogForm = ({ addBlog }) => {
           <input
             name="author"
             type="text"
+            className="author"
             value={newBlog.author}
             onChange={inputChange}
           />
@@ -41,14 +43,17 @@ const BlogForm = ({ addBlog }) => {
           <input
             name="url"
             type="text"
+            className="url"
             value={newBlog.url}
             onChange={inputChange}
           />
         </div>
-        <button type="submit">create</button>
+        <button aria-label="submit" className="submit" type="submit">
+          create
+        </button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default BlogForm
+export default BlogForm;

@@ -1,51 +1,62 @@
-import { useState } from 'react'
+import { useState } from "react";
 
 const Blog = ({ blog, addLike, deleteBlog }) => {
-  const [visibility, setVisibility] = useState(false)
+  const [visibility, setVisibility] = useState(false);
 
   const toggleVisibility = () => {
-    setVisibility(!visibility)
-  }
+    setVisibility(!visibility);
+  };
 
   const handleAddLike = () => {
-    console.log(blog.user.id)
     const blogToBeUpdated = {
       title: blog.title,
       author: blog.author,
       url: blog.url,
       likes: blog.likes + 1,
       user: blog.user.id,
-    }
-    addLike(blog.id, blogToBeUpdated)
-  }
+    };
+    addLike(blog.id, blogToBeUpdated);
+  };
 
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
-    border: 'solid',
+    border: "solid",
     borderWidth: 1,
     marginBottom: 5,
-  }
+  };
 
   const handleDeleteBlog = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      deleteBlog(blog.id)
+      deleteBlog(blog.id);
     }
-  }
+  };
 
   return (
     <div style={blogStyle}>
       <div>
-        {blog.title}
-        <button onClick={toggleVisibility}>
-          {visibility ? 'hide' : 'show'}
+        <span className="title">{blog.title}</span>
+        <span className="author">{blog.author}</span>
+        <button
+          aria-label="visibility"
+          className="visibility"
+          onClick={toggleVisibility}
+        >
+          {visibility ? "hide" : "show"}
         </button>
       </div>
       {visibility && (
         <div>
-          <div>{blog.url}</div>
-          <div>
-            likes: {blog.likes} <button onClick={handleAddLike}>like</button>
+          <div className="url">{blog.url}</div>
+          <div className="likes">
+            likes: {blog.likes}{" "}
+            <button
+              aria-label="like"
+              className="like"
+              onClick={handleAddLike}
+            >
+              like
+            </button>
           </div>
           <div>{blog.author}</div>
           <div>
@@ -54,7 +65,7 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Blog
+export default Blog;
