@@ -33,9 +33,9 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
   };
 
   return (
-    <div style={blogStyle}>
+    <div id="blog" className="blog" style={blogStyle}>
       <div>
-        <span className="title">{blog.title}</span>
+        <span className="title">{blog.title} </span>
         <span className="author">{blog.author}</span>
         <button
           aria-label="visibility"
@@ -53,6 +53,7 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
             <button
               aria-label="like"
               className="like"
+              id="like-button"
               onClick={handleAddLike}
             >
               like
@@ -60,7 +61,7 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
           </div>
           <div>{blog.author}</div>
           <div>
-            <button onClick={handleDeleteBlog}>delete</button>
+            <button id="delete-button" onClick={handleDeleteBlog}>delete</button>
           </div>
         </div>
       )}
