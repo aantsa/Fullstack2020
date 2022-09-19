@@ -25,7 +25,6 @@ export const addVote = (id) => {
 };
 
 export const createAnecdote = (content) => {
-  console.log("asDasdas");
   return {
     type: "NEW_ANECDOTE",
     data: {
@@ -39,8 +38,6 @@ export const createAnecdote = (content) => {
 const initialState = anecdotesAtStart.map(anecdote);
 
 const reducer = (state = initialState, action) => {
-  console.log("state now: ", state);
-  console.log("action", action);
 
   switch (action.type) {
     case "ADDVOTE": {
