@@ -1,6 +1,7 @@
 Cypress.Commands.add("login", ({ username, password }) => {
   cy.request("POST", "http://localhost:3003/api/login", {
-    username, password
+    username,
+    password,
   }).then(({ body }) => {
     localStorage.setItem("loggedNoteappUser", JSON.stringify(body));
     cy.visit("http://localhost:3000");
@@ -10,7 +11,6 @@ Cypress.Commands.add("login", ({ username, password }) => {
 Cypress.Commands.add("reset_db", () => {
   cy.request("POST", "http://localhost:3003/api/testing/reset");
 });
-
 
 Cypress.Commands.add("create_user", (user) => {
   cy.request("POST", "http://localhost:3003/api/users/", user);
