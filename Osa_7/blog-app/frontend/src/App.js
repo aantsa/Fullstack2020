@@ -1,115 +1,30 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Toggleable";
 import NewBlogForm from "./components/NewBlogForm";
-import Blog from "./components/Blog";
 
-import blogService from "./services/blogs";
-import loginService from "./services/login";
-import userService from "./services/user";
-import { useDispatch } from "react-redux";
-import { setNotification } from "./reducers/notificationReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { initializeUser, logout } from "./reducers/authReducer";
+import BlogList from "./components/BlogList";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState(null);
+  const user = useSelector((state) => state.authentication);
+
   const dispatch = useDispatch();
   const blogFormRef = useRef();
-  const byLikes = (b1, b2) => (b2.likes > b1.likes ? 1 : -1);
-  console.log(user);
+
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs.sort(byLikes)));
-  }, []);
+    dispatch(initializeUser());
+  }, [dispatch]);
 
-  useEffect(() => {
-    const userFromStorage = userService.getUser();
-    if (userFromStorage) {
-      setUser(userFromStorage);
-    }
-  }, []);
-
-  const login = async (username, password) => {
-    loginService
-      .login({
-        username,
-        password,
-      })
-      .then((user) => {
-        setUser(user);
-        userService.setUser(user);
-        notify(`${user.name} logged in!`);
-      })
-      .catch(() => {
-        notify("wrong username/password", "alert");
-      });
-  };
-
-  const logout = () => {
-    setUser(null);
-    userService.clearUser();
-    notify("good bye!");
-  };
-
-  const createBlog = async (blog) => {
-    blogService
-      .create(blog)
-      .then((createdBlog) => {
-        notify(
-          `a new blog '${createdBlog.title}' by ${createdBlog.author} added`
-        );
-        setBlogs(blogs.concat(createdBlog));
-        blogFormRef.current.toggleVisibility();
-      })
-      .catch((error) => {
-        notify("creating a blog failed: " + error.response.data.error, "alert");
-      });
-  };
-
-  const removeBlog = (id) => {
-    const toRemove = blogs.find((b) => b.id === id);
-
-    const ok = window.confirm(
-      `remove '${toRemove.title}' by ${toRemove.author}?`
-    );
-
-    if (!ok) {
-      return;
-    }
-
-    blogService.remove(id).then(() => {
-      const updatedBlogs = blogs.filter((b) => b.id !== id).sort(byLikes);
-      setBlogs(updatedBlogs);
-    });
-  };
-
-  const likeBlog = async (id) => {
-    const toLike = blogs.find((b) => b.id === id);
-    const liked = {
-      ...toLike,
-      likes: (toLike.likes || 0) + 1,
-      user: toLike.user.id,
-    };
-
-    blogService.update(liked.id, liked).then((updatedBlog) => {
-      notify(`you liked '${updatedBlog.title}' by ${updatedBlog.author}`);
-      const updatedBlogs = blogs
-        .map((b) => (b.id === id ? updatedBlog : b))
-        .sort(byLikes);
-      setBlogs(updatedBlogs);
-    });
-  };
-
-  const notify = (message, type = "info") => {
-    dispatch(setNotification({ text: message, type }));
-  };
-
-  if (user === null) {
+  if (user?.user?.username === undefined) {
     return (
       <>
-        <LoginForm onLogin={login} />
+        <Notification />
+        <LoginForm />
       </>
     );
   }
@@ -117,29 +32,17 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-
       <Notification />
-
       <div>
-        {user.username} logged in
-        <button onClick={logout}>logout</button>
+        {user.user.username} logged in
+        <button onClick={() => dispatch(logout())}>logout</button>
       </div>
 
       <Togglable buttonLabel="new note" ref={blogFormRef}>
-        <NewBlogForm onCreate={createBlog} />
+        <NewBlogForm />
       </Togglable>
 
-      <div id="blogs">
-        {blogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            likeBlog={likeBlog}
-            removeBlog={removeBlog}
-            user={user}
-          />
-        ))}
-      </div>
+      <BlogList />
     </div>
   );
 };

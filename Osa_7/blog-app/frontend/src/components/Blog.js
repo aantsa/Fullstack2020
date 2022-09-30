@@ -1,7 +1,10 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { likeBlog, removeBlog } from "../reducers/blogReducer";
 
-const BlogDetails = ({ blog, visible, likeBlog, removeBlog, own }) => {
+const BlogDetails = ({ blog, visible, own, likeBlog, removeBlog }) => {
+  const dispatch = useDispatch();
   if (!visible) return null;
 
   const addedBy = blog.user && blog.user.name ? blog.user.name : "anonymous";
@@ -13,15 +16,17 @@ const BlogDetails = ({ blog, visible, likeBlog, removeBlog, own }) => {
       </div>
       <div>
         {blog.likes} likes{" "}
-        <button onClick={() => likeBlog(blog.id)}>like</button>
+        <button onClick={() => dispatch(likeBlog(blog.id))}>like</button>
       </div>
       {addedBy}
-      {own && <button onClick={() => removeBlog(blog.id)}>remove</button>}
+      {own && (
+        <button onClick={() => dispatch(removeBlog(blog.id))}>remove</button>
+      )}
     </div>
   );
 };
 
-const Blog = ({ blog, likeBlog, removeBlog, user }) => {
+const Blog = ({ blog, user }) => {
   const [visible, setVisible] = useState(false);
 
   const style = {
@@ -62,8 +67,6 @@ Blog.propTypes = {
   user: PropTypes.shape({
     username: PropTypes.string.isRequired,
   }),
-  likeBlog: PropTypes.func.isRequired,
-  removeBlog: PropTypes.func.isRequired,
 };
 
 export default Blog;
