@@ -15,7 +15,6 @@ const createNew = async (content) => {
 
 const update = async (anecdote) => {
   const { id } = anecdote;
-  console.log(id);
   const votes = { votes: anecdote.votes + 1 };
   const response = await axios.patch(`${baseUrl}/${id}`, votes);
   return response.data;

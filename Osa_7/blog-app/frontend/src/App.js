@@ -1,20 +1,19 @@
-import { useEffect, useRef } from "react";
-
+import { useEffect } from "react";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
-import Togglable from "./components/Toggleable";
-import NewBlogForm from "./components/NewBlogForm";
-
 import { useDispatch, useSelector } from "react-redux";
 import { initializeUser, logout } from "./reducers/authReducer";
-import BlogList from "./components/BlogList";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import UserList from "./components/UserList";
+import UserProfile from "./components/UserProfile";
+import { initializeUsers } from "./reducers/userReducer";
+import BlogListView from "./components/BlogListView";
+import Menu from "./components/Menu";
 
 const App = () => {
   const user = useSelector((state) => state.authentication);
 
   const dispatch = useDispatch();
-  const blogFormRef = useRef();
-
 
   useEffect(() => {
     dispatch(initializeUser());
@@ -31,18 +30,9 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
       <Notification />
-      <div>
-        {user.user.username} logged in
-        <button onClick={() => dispatch(logout())}>logout</button>
-      </div>
-
-      <Togglable buttonLabel="new note" ref={blogFormRef}>
-        <NewBlogForm />
-      </Togglable>
-
-      <BlogList />
+      <Menu />
+      <BlogListView />
     </div>
   );
 };

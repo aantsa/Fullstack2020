@@ -28,7 +28,6 @@ export const { addLike, appendBlog, setBlog } = blogSlice.actions;
 export const initializeBlogs = () => {
   return async (dispatch) => {
     const blogList = await blogService.getAll();
-    console.log(blogList);
     dispatch(setBlog(blogList));
   };
 };
@@ -44,22 +43,16 @@ export const removeBlog = (id) => {
   return async (dispatch) => {
     const byLikes = (b1, b2) => (b2.likes > b1.likes ? 1 : -1);
     const blogs = await blogService.getAll();
-    const toRemove = blogs.find((b) => b.id === id);
-    const ok = window.confirm(
-      `remove '${toRemove.title}' by ${toRemove.author}?`
-    );
-    if (!ok) {
-      return;
-    }
     blogService.remove(id).then(() => {
       const updatedBlogs = blogs.filter((b) => b.id !== id).sort(byLikes);
-      dispatch(setBlog(updatedBlogs));    });
+      dispatch(setBlog(updatedBlogs));
+    });
   };
 };
 
-export const likeBlog = (blog) => {
+export const likeBlog = (id, blog) => {
   return async (dispatch) => {
-    const liked = await blogService.update(blog);
+    const liked = await blogService.update(id, blog);
     dispatch(addLike(liked));
   };
 };

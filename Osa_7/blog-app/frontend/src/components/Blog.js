@@ -3,29 +3,6 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { likeBlog, removeBlog } from "../reducers/blogReducer";
 
-const BlogDetails = ({ blog, visible, own, likeBlog, removeBlog }) => {
-  const dispatch = useDispatch();
-  if (!visible) return null;
-
-  const addedBy = blog.user && blog.user.name ? blog.user.name : "anonymous";
-
-  return (
-    <div>
-      <div>
-        <a href={blog.url}>{blog.url}</a>
-      </div>
-      <div>
-        {blog.likes} likes{" "}
-        <button onClick={() => dispatch(likeBlog(blog.id))}>like</button>
-      </div>
-      {addedBy}
-      {own && (
-        <button onClick={() => dispatch(removeBlog(blog.id))}>remove</button>
-      )}
-    </div>
-  );
-};
-
 const Blog = ({ blog, user }) => {
   const [visible, setVisible] = useState(false);
 
@@ -38,17 +15,7 @@ const Blog = ({ blog, user }) => {
 
   return (
     <div style={style} className="blog">
-      {blog.title} {blog.author}
-      <button onClick={() => setVisible(!visible)}>
-        {visible ? "hide" : "view"}
-      </button>
-      <BlogDetails
-        blog={blog}
-        visible={visible}
-        likeBlog={likeBlog}
-        removeBlog={removeBlog}
-        own={blog.user && user.username === blog.user.username}
-      />
+      <a href={`/blogs/${blog.id}`}>{blog.title}</a>
     </div>
   );
 };

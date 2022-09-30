@@ -14,14 +14,6 @@ const BlogList = () => {
     dispatch(initializeBlogs());
   }, [dispatch]);
 
-  console.log(blogs);
-  console.log(user?.user);
-
-  const addLike = (blog) => {
-    dispatch(likeBlog(blog));
-    dispatch(setNotification(`you voted '${blog.content}'`, 5));
-  };
-
   return (
     <div id="blogs">
       {blogs?.map((blog) => (

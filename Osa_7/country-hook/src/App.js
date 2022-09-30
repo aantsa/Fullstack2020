@@ -15,7 +15,7 @@ const App = () => {
   return (
     <div>
       <form onSubmit={fetch}>
-        <input onChange={() => console.log("teas")} {...name} />
+        <input {...name} />
         <button>find</button>
       </form>
 

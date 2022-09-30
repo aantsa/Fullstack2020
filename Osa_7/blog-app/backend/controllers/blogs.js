@@ -50,9 +50,9 @@ router.delete("/:id", async (request, response) => {
 });
 
 router.put("/:id", async (request, response) => {
+  const blogToDelete = await Blog.findById(request.params.id);
   const blog = request.body;
-
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id.trim(), blog, {
     new: true,
     runValidators: true,
     context: "query",
